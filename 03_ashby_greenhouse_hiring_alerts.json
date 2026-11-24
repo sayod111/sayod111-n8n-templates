@@ -1,0 +1,123 @@
+{
+  "name": "Sayod 111 - Ashby & Greenhouse B2B Hiring Intent Signals to Google Sheets",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Sayod 111 7-ATS Hiring Intent Workflow\n1. Set environment variable `APIFY_API_TOKEN` (from https://apify.com/sayod111/ashby-greenhouse-hiring-intent).\n2. Replace `companyInputs` with target Ashby/Greenhouse slugs.\n3. Connect your Google Sheets credential and click Execute.",
+        "height": 260,
+        "width": 440
+      },
+      "id": "sticky-setup",
+      "name": "Setup Instructions",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        180,
+        120
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "manual-trigger",
+      "name": "When clicking Execute Workflow",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        220,
+        440
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.apify.com/v2/acts/sayod111~ashby-greenhouse-hiring-intent/run-sync-get-dataset-items",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $env.APIFY_API_TOKEN }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\"companyInputs\":[\"ashby:linear\",\"greenhouse:stripe\"],\"maxJobsPerCompany\":10,\"enrichCompanyContacts\":true}",
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "id": "sayod-http",
+      "name": "Run Sayod 111 (ashby-greenhouse-hiring-intent)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        500,
+        440
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Sheet1",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {}
+        },
+        "options": {}
+      },
+      "id": "google-sheets",
+      "name": "Append Flat Columns to Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        800,
+        440
+      ]
+    }
+  ],
+  "connections": {
+    "When clicking Execute Workflow": {
+      "main": [
+        [
+          {
+            "node": "Run Sayod 111 (ashby-greenhouse-hiring-intent)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run Sayod 111 (ashby-greenhouse-hiring-intent)": {
+      "main": [
+        [
+          {
+            "node": "Append Flat Columns to Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {
+    "templateCredsSetupCompleted": false
+  }
+}
