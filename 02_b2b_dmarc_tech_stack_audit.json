@@ -1,0 +1,123 @@
+{
+  "name": "Sayod 111 - Bulk B2B Domain DMARC, SPF, MX & 110 Tech Stack Audit",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Sayod 111 DNS Security & Tech Stack Workflow\n1. Set environment variable `APIFY_API_TOKEN` (from https://apify.com/sayod111/dmarc-spf-mx-deliverability-auditor).\n2. Replace `domains` with your prospect domains.\n3. Connect your Google Sheets credential and click Execute.",
+        "height": 260,
+        "width": 440
+      },
+      "id": "sticky-setup",
+      "name": "Setup Instructions",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        180,
+        120
+      ]
+    },
+    {
+      "parameters": {},
+      "id": "manual-trigger",
+      "name": "When clicking Execute Workflow",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        220,
+        440
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.apify.com/v2/acts/sayod111~dmarc-spf-mx-deliverability-auditor/run-sync-get-dataset-items",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $env.APIFY_API_TOKEN }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\"domains\":[\"stripe.com\",\"linear.app\"],\"icpProfile\":\"b2b_saas\",\"onlyPushQualified\":false}",
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "id": "sayod-http",
+      "name": "Run Sayod 111 (dmarc-spf-mx-deliverability-auditor)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        500,
+        440
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Sheet1",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {}
+        },
+        "options": {}
+      },
+      "id": "google-sheets",
+      "name": "Append Flat Columns to Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        800,
+        440
+      ]
+    }
+  ],
+  "connections": {
+    "When clicking Execute Workflow": {
+      "main": [
+        [
+          {
+            "node": "Run Sayod 111 (dmarc-spf-mx-deliverability-auditor)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run Sayod 111 (dmarc-spf-mx-deliverability-auditor)": {
+      "main": [
+        [
+          {
+            "node": "Append Flat Columns to Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {
+    "templateCredsSetupCompleted": false
+  }
+}
