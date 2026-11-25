@@ -1,0 +1,104 @@
+{
+  "name": "Sayod 111 - Daily 07:00 AM US SLED Government Bids & RFP Radar",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "days",
+              "daysInterval": 1,
+              "triggerAtHour": 7
+            }
+          ]
+        }
+      },
+      "id": "s1",
+      "name": "Daily Morning Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        160,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.apify.com/v2/acts/sayod111~us-sled-gov-bids-monitor/run-sync-get-dataset-items",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $env.APIFY_API_TOKEN }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\"sources\":[\"bonfire\",\"socrata_nyc\"],\"openOnly\":true,\"postedWithinDays\":3,\"maxResults\":50}",
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "id": "h1",
+      "name": "Run Sayod 111 SLED Gov Bids Monitor",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        420,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "compare": "selectedFields",
+        "fieldsToCompare": "solicitation_uid",
+        "options": {
+          "removeOtherFields": false
+        }
+      },
+      "id": "d1",
+      "name": "Deduplicate by Solicitation UID",
+      "type": "n8n-nodes-base.removeDuplicates",
+      "typeVersion": 2,
+      "position": [
+        680,
+        320
+      ]
+    }
+  ],
+  "connections": {
+    "Daily Morning Trigger": {
+      "main": [
+        [
+          {
+            "node": "Run Sayod 111 SLED Gov Bids Monitor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run Sayod 111 SLED Gov Bids Monitor": {
+      "main": [
+        [
+          {
+            "node": "Deduplicate by Solicitation UID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
