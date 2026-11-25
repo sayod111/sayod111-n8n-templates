@@ -56,3 +56,10 @@ Full suite documentation: https://sayod111.github.io | Apify Store: https://apif
 `domain | platform | has_klaviyo | klaviyo_company_id | meta_pixel_id | tiktok_pixel_id | google_ads_id | apps_detected_csv | http_status`
 
 Run directly on Apify Store: https://apify.com/sayod111/shopify-klaviyo-pixel-auditor
+
+## Workflow 12: Compound B2B Radar Weekly Delta (`12_sayod111_compound_radar_weekly_delta.json`)
+
+Fetches pre-enriched weekly buying signals (Shopify Paid Ads + Missing Klaviyo + ATS Hiring, Cyber/GRC Trust Center, or 12,019 SEC Form ADV RIAs) directly from Cloudflare Edge D1 in a single HTTP node.
+
+- Live Zero-Login Auditors: https://sayod111-radar.pages.dev/
+- OpenAPI 3.1 & Integration Docs: https://sayod111-radar.pages.dev/docs.html
