@@ -1,0 +1,107 @@
+{
+  "name": "Sayod 111 - Weekly Biotech NIH Grants, Clinical Trials & FDA 510k Radar",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "weeksInterval": 1,
+              "triggerAtDay": [
+                1
+              ],
+              "triggerAtHour": 8
+            }
+          ]
+        }
+      },
+      "id": "s1",
+      "name": "Weekly Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        160,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.apify.com/v2/acts/sayod111~us-biotech-grants-trials-fda510k/run-sync-get-dataset-items",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $env.APIFY_API_TOKEN }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\"sources\":[\"nih_reporter\",\"clinical_trials\",\"openfda_510k\"],\"keywords\":[\"oncology\",\"genomics\",\"imaging\"],\"recruitingOnly\":true,\"maxResults\":50}",
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "id": "h1",
+      "name": "Pull Life-Sciences Signals",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        420,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "compare": "selectedFields",
+        "fieldsToCompare": "signal_uid",
+        "options": {
+          "removeOtherFields": false
+        }
+      },
+      "id": "d1",
+      "name": "Deduplicate by Signal UID",
+      "type": "n8n-nodes-base.removeDuplicates",
+      "typeVersion": 2,
+      "position": [
+        680,
+        320
+      ]
+    }
+  ],
+  "connections": {
+    "Weekly Trigger": {
+      "main": [
+        [
+          {
+            "node": "Pull Life-Sciences Signals",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pull Life-Sciences Signals": {
+      "main": [
+        [
+          {
+            "node": "Deduplicate by Signal UID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
