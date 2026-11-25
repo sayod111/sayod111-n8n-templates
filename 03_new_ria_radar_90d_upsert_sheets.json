@@ -1,0 +1,167 @@
+{
+  "name": "Sayod 111 WealthPulse V3 - New Breakaway RIA Radar (Last 90 Days)",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## New RIA Radar\nTracks newly SEC-registered advisers (`registeredWithinDays: 90`) and upserts clean 45-column rows by `crd_number` for WealthTech and custodian outbound.",
+        "height": 260,
+        "width": 460
+      },
+      "id": "sticky-1",
+      "name": "Setup & Deduplication Guide",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        160,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "weeksInterval": 1,
+              "triggerAtDay": [
+                1
+              ],
+              "triggerAtHour": 8
+            }
+          ]
+        }
+      },
+      "id": "schedule-1",
+      "name": "Weekly Monday 08:00 Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        180,
+        420
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.apify.com/v2/acts/sayod111~sec-ria-wealthpulse/run-sync-get-dataset-items",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $env.APIFY_API_TOKEN }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\"registeredWithinDays\":90,\"activeStatusOnly\":true,\"maxResults\":100}",
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "id": "wealthpulse-call",
+      "name": "Run Sayod 111 WealthPulse V3 (SEC Form ADV)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        440,
+        420
+      ]
+    },
+    {
+      "parameters": {
+        "compare": "selectedFields",
+        "fieldsToCompare": "crd_number",
+        "options": {
+          "removeOtherFields": false
+        }
+      },
+      "id": "dedup-1",
+      "name": "Deduplicate by CRD Number",
+      "type": "n8n-nodes-base.removeDuplicates",
+      "typeVersion": 2,
+      "position": [
+        700,
+        420
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "SEC_RIAs",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "matchingColumns": [
+            "crd_number"
+          ],
+          "value": {}
+        },
+        "options": {}
+      },
+      "id": "sheets-upsert",
+      "name": "Upsert by CRD Number in Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        960,
+        420
+      ]
+    }
+  ],
+  "connections": {
+    "Weekly Monday 08:00 Trigger": {
+      "main": [
+        [
+          {
+            "node": "Run Sayod 111 WealthPulse V3 (SEC Form ADV)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run Sayod 111 WealthPulse V3 (SEC Form ADV)": {
+      "main": [
+        [
+          {
+            "node": "Deduplicate by CRD Number",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Deduplicate by CRD Number": {
+      "main": [
+        [
+          {
+            "node": "Upsert by CRD Number in Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {
+    "templateCredsSetupCompleted": false
+  }
+}

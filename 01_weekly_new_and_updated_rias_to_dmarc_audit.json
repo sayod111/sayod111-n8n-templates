@@ -1,0 +1,169 @@
+{
+  "name": "Sayod 111 WealthPulse V3 - Weekly Updated $100M-$1B RIAs -> DMARC Audit",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## Weekly Mid-Market RIA Security & Tech Pipeline\n1. Uses non-overlapping 7-day rolling window (`updatedWithinDays: 7`) on Mondays at 08:00.\n2. Deduplicates strictly by `crd_number` and pipes clean `website_domain` into `sayod111/dmarc-spf-mx-deliverability-auditor`.",
+        "height": 260,
+        "width": 460
+      },
+      "id": "sticky-1",
+      "name": "Setup & Deduplication Guide",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        160,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "weeksInterval": 1,
+              "triggerAtDay": [
+                1
+              ],
+              "triggerAtHour": 8
+            }
+          ]
+        }
+      },
+      "id": "schedule-1",
+      "name": "Weekly Monday 08:00 Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        180,
+        420
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.apify.com/v2/acts/sayod111~sec-ria-wealthpulse/run-sync-get-dataset-items",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $env.APIFY_API_TOKEN }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\"states\":[\"CA\",\"NY\",\"TX\"],\"minAumUsd\":100000000,\"maxAumUsd\":1000000000,\"updatedWithinDays\":7,\"cleanDisclosuresOnly\":true,\"activeStatusOnly\":true,\"maxResults\":50,\"enableWeeklyDiff\":true,\"sortBy\":\"aum_desc\"}",
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "id": "wealthpulse-call",
+      "name": "Run Sayod 111 WealthPulse V3 (SEC Form ADV)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        440,
+        420
+      ]
+    },
+    {
+      "parameters": {
+        "compare": "selectedFields",
+        "fieldsToCompare": "crd_number",
+        "options": {
+          "removeOtherFields": false
+        }
+      },
+      "id": "dedup-1",
+      "name": "Deduplicate by CRD Number",
+      "type": "n8n-nodes-base.removeDuplicates",
+      "typeVersion": 2,
+      "position": [
+        700,
+        420
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.apify.com/v2/acts/sayod111~dmarc-spf-mx-deliverability-auditor/run-sync-get-dataset-items",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $env.APIFY_API_TOKEN }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\"domains\": {{ JSON.stringify($input.all().map(i => i.json.website_domain).filter(Boolean).slice(0, 50)) }}}",
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "id": "dmarc-chain",
+      "name": "Chain to Sayod 111 DMARC & Tech Auditor",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        960,
+        420
+      ]
+    }
+  ],
+  "connections": {
+    "Weekly Monday 08:00 Trigger": {
+      "main": [
+        [
+          {
+            "node": "Run Sayod 111 WealthPulse V3 (SEC Form ADV)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run Sayod 111 WealthPulse V3 (SEC Form ADV)": {
+      "main": [
+        [
+          {
+            "node": "Deduplicate by CRD Number",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Deduplicate by CRD Number": {
+      "main": [
+        [
+          {
+            "node": "Chain to Sayod 111 DMARC & Tech Auditor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "meta": {
+    "templateCredsSetupCompleted": false
+  }
+}

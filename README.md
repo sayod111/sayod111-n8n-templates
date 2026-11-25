@@ -1,11 +1,22 @@
 # Sayod 111 n8n Automation Templates
 
+[![Listed on mcpservers.org](https://mcpservers.org/badge.svg)](https://mcpservers.org/servers/sayod111/sayod111-mcp-servers)
+
 Ready-to-import n8n workflows powered by Sayod 111 pure async HTTP/2 commercial data engines on Apify Cloud. Every workflow uses n8n's built-in HTTP Request node with Bearer header authentication and writes flat, schema-validated columns straight to Google Sheets.
 
 ## Included Workflows
 1. `01_shopify_pixel_klaviyo_audit.json`: Audits Shopify storefronts for active Meta/TikTok/Google pixels, Klaviyo adoption, SEO/CRO defects, and DNS MX-verified merchant contacts. Engine: https://apify.com/sayod111/shopify-klaviyo-pixel-auditor
 2. `02_b2b_dmarc_tech_stack_audit.json`: Runs bulk DNS MX/SPF/DMARC security posture audits plus 110+ technology fingerprints and corporate contacts. Engine: https://apify.com/sayod111/dmarc-spf-mx-deliverability-auditor
 3. `03_ashby_greenhouse_hiring_alerts.json`: Tracks live open roles and 6 B2B buying intent categories across Ashby and Greenhouse career boards. Engine: https://apify.com/sayod111/ashby-greenhouse-hiring-intent
+
+## SEC adviser and trust center workflows
+
+These four templates require access to their Apify Actors while Store publication is pending.
+
+- [Sayod 111 WealthPulse V3 - Weekly Updated $100M-$1B RIAs -> DMARC Audit](01_weekly_new_and_updated_rias_to_dmarc_audit.json)
+- [Sayod 111 WealthPulse V3 - Boutique Longevity M&A Research Upsert](02_ria_ma_boutique_longevity_upsert_sheets.json)
+- [Sayod 111 WealthPulse V3 - New Breakaway RIA Radar (Last 90 Days)](03_new_ria_radar_90d_upsert_sheets.json)
+- [Sayod 111 - Weekly SEC RIA -> SaaS Trust Center & Security Audit](01_wealthpulse_to_trust_center_audit.json)
 
 ## Quick Import
 1. In n8n, open Workflows -> Import from File and select any JSON file above.
