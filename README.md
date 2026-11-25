@@ -37,3 +37,22 @@ Full suite documentation: https://sayod111.github.io | Apify Store: https://apif
 ## Wave 3 Flagship Workflows (Added Nov 25, 2026)
 - `10_daily_ucc1_refinance_radar.json`: Daily commercial UCC-1 lien and refinance trigger radar (`sayod111/us-ucc-1-secured-loan-leads`, deduplicated by `ucc_uid`).
 - `11_weekly_biotech_nih_trials_fda_radar.json`: Weekly NIH RePORTER grants, ClinicalTrials.gov studies, and openFDA 510(k) radar (`sayod111/us-biotech-grants-trials-fda510k`, deduplicated by `signal_uid`).
+
+## Quick-Start: Shopify Klaviyo & Ad Pixel Audit (`01_shopify_pixel_klaviyo_audit.json`)
+
+**Workflow Nodes:** `When clicking Execute Workflow` -> `Run Sayod 111 (shopify-klaviyo-pixel-auditor)` -> `Append Flat Columns to Google Sheets` (plus standalone `Setup Instructions` note).
+
+**1. Exact Input Payload (`storeUrls`):**
+```json
+{
+  "storeUrls": [
+    "https://hexclad.com",
+    "https://ourplace.com"
+  ]
+}
+```
+
+**2. Google Sheets `Sheet1` Headers (`autoMapInputData`):**
+`domain | platform | has_klaviyo | klaviyo_company_id | meta_pixel_id | tiktok_pixel_id | google_ads_id | apps_detected_csv | http_status`
+
+Run directly on Apify Store: https://apify.com/sayod111/shopify-klaviyo-pixel-auditor
